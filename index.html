@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Опыт Юнга</title>
+    <style>
+        #canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+
+<label for="wavelength">Длина волны (нм):</label>
+<input type="number" id="wavelength" value="100"><br>
+
+<label for="index1">Коэффициент преломления 1:</label>
+<input type="number" id="index1" step="0.01" value="1.0"><br>
+
+<label for="index2">Коэффициент преломления 2:</label>
+<input type="number" id="index2" step="0.01" value="1.0"><br>
+
+<label for="slitDistance">Расстояния между щелями (мкм):</label>
+<input type="number" id="slitDistance" value="100"><br>
+
+<label for="screenDistance">Расстояние до экрана (см):</label>
+<input type="number" id="screenDistance" value="1000"><br>
+
+<button onclick="drawInterference()">Нарисовать интерференционную картину</button>
+<br><br>
+
+<canvas id="canvas" width="800" height="400"></canvas>
+
+<script>
+
+    function drawInterference() {
+        const wavelength = parseFloat(document.getElementById('wavelength').value) * 1e-9;
+        const index1 = parseFloat(document.getElementById('index1').value);
+        const index2 = parseFloat(document.getElementById('index2').value);
+        const slitDistance = parseFloat(document.getElementById('slitDistance').value) * 1e-6;
+        const screenDistance = parseFloat(document.getElementById('screenDistance').value) * 1e-2;
+
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const intensityMax = 255;
+        const fringeSpacing = (wavelength * screenDistance) / (slitDistance * index1/index2);
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        for (let x = 0; x < canvas.width; x++) {
+            let dx = (x - centerX) * (slitDistance * index1/index2) / screenDistance;
+            let pathDifference = (Math.sqrt(dx * dx + screenDistance * screenDistance) - screenDistance);
+            let phaseDifference = (2 * Math.PI * pathDifference / (wavelength / index2)) % (2 * Math.PI);
+            let intensity = (intensityMax / 2) * (1 + Math.cos(phaseDifference));
+
+            ctx.fillStyle = `rgb(${intensity},${intensity},${intensity})`;
+            ctx.fillRect(x, 0, 1, canvas.height);
+        }
+    }
+
+    drawInterference();
+
+</script>
+</body>
+</html>
